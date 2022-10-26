@@ -1,0 +1,47 @@
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{babel}
+\usepackage{isodate}
+\usepackage[left=2cm, right=2cm]{geometry}
+
+% prevent line break in inline math
+% except in extrem situation 
+\relpenalty=9999
+\binoppenalty=9999
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+\usepackage{amsthm}
+\usepackage{titlesec}
+\usepackage{hyperref}
+\usepackage{listings, lstautogobble}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usepackage{float}
+\usepackage{caption}
+\usetikzlibrary{arrows,automata}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem*{lemma}{Lemma}
+\newtheorem*{property}{Property}
+
+\theoremstyle{definition}
+\newtheorem*{definition}{Definition}
+
+\theoremstyle{remark}
+\newtheorem*{remark}{Remark}
+
+\renewcommand{\epsilon}{\varepsilon}
+\renewcommand{\phi}{\varphi}
+
+\newcommand{\KK}{\ensuremath{\mathbb{K}}}
+\newcommand{\Aut}{\ensuremath{\mathcal{A}}}
+\newcommand{\Lang}{\ensuremath{\mathcal{L}}}
+\newcommand{\series}[2]{\ensuremath{#1\langle\langle#2\rangle\rangle}}
+\newcommand{\polyn}[2]{\ensuremath{#1\langle#2\rangle}}
+\DeclareMathOperator{\weight}{\mathfrak{w}}
+\DeclareMathOperator{\supp}{supp}
+\newcommand{\trans}[1]{\ensuremath{\xrightarrow{#1}}}
+\DeclareMathOperator{\defeq}{\stackrel{\text{def}}{=}}
+

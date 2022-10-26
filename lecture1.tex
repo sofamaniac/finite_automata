@@ -1,0 +1,342 @@
+Outline of the course
+\begin{itemize}
+	\item weighted automata
+	\item sequential transducers
+	\item minimization
+	\item learning algorithm $L^*$ and variations
+\end{itemize}
+
+\section{Lecture 1}
+
+\begin{definition}[Semiring] 
+	$(\KK, +, \cdot, 0, 1)$ is a set \KK
+	equipped with a commutative monoid structure $(\KK, +, 0)$, 
+	a second monoid structure $(\KK, \cdot, 1)$ such that the following
+	axioms holds:
+	\begin{itemize}
+		\item $\forall x, y, z, \in \KK, x\cdot( y + z) = xy + xz$ and
+			$ (y+z)x = yx + zx$
+		\item $\forall x \in \KK, 0 \cdot x = x \cdot 0 = 0$
+	\end{itemize}
+\end{definition}
+\paragraph{Examples}~
+\begin{itemize}
+	\item Boolean semiring $\mathbb{B} = \{0, 1\}$
+	\item $\mathbb{N}, \mathbb{Z}, \mathbb{Q}_+, \mathbb{Q}, \mathbb{R}$
+	\item Tropical semirings : $\mathbb{N}_{min} = (\mathbb{N} \cup 
+		\{+\infty \}, min, +, +\infty, 0)$
+	\item if $(M, \cdot, 1)$ is a monoid then $(\mathcal{P}(M), \cup, \cdot,
+		\emptyset, \{1_M\})$ is a semiring where $\cup$ is the union
+		for $A, B \in \mathcal{P}(M), A \cdot B = \{a \cdot b | a\in A, b\in B
+		\}$
+	\item in particular $\mathcal{P}(A^*)$ has a semiring structure
+		$Rat(A^*) \subseteq \mathcal(A^*)$ is a subsemiring of
+		$\mathcal{P}(A^*)$
+\end{itemize}
+
+\begin{definition}[semiring morphism] A morphism between
+	semiring $(A, +_A, \cdot_A, 0_A, 1_A)$, $(B, +_B, \cdot_B, 0_B, 1_B)$
+	is a function $f : A \to B$ such that $\forall x, y \in A$
+	\begin{itemize}
+		\item $f(x +_A y) = f(x) +_B f(y)$
+		\item $f(x \cdot_A y) = f(x) \cdot_B f(y)$
+		\item $f(1_A) = 1_B$
+		\item $f(0_K) = 0_B$
+	\end{itemize}
+\end{definition}
+
+\begin{definition}[Finite automaton]
+	A finite automaton over a finite alphabet $A$ is
+	$(Q, (\delta_a: Q\to Q)_{a\in A}), q_0, F)$
+	where $Q$ is a finite set of states, $q_0 \in Q$ the initial state
+	$F \subseteq Q$ the set of accepting states
+\end{definition}
+
+\begin{definition}[Weighted automaton] over $A$ and a semiring $\KK$
+	$(Q, (\delta_a: Q\to Q)_{a\in A}, i, f)$ where 
+	\begin{itemize}
+		\item $Q$ is a module over \KK
+		\item $\delta_a$ is a linear transformation for all $a\in A$
+		\item $i : \KK \to Q$ is the initial linear transformation
+		\item $f : Q \to \KK$ is the final linear transformation
+	\end{itemize}
+\end{definition}
+
+\begin{definition}[Another definition of weighted automaton]
+	$\mathcal{A}=(S, i, f, E \subseteq S \times A \times K \times Q)$ 
+	where $E$ is
+	the graph of a partial function from $S\times A \times S$ to $\KK\setminus
+	\{0_K\}$, with $S$ finite, $i, f\in \KK^S$
+\end{definition}
+
+\paragraph{Notations and conventions}~
+\begin{itemize}
+	\item we do not write output arrows from a state $q$ if $f(q) = 0$
+		and likewise for $i(q) = 0$
+	\item 2 notations for the graph, either the edge are labelled by $wa$
+		where $w$ is the weight and $a$ the letter, or by $a | w$
+	\item $(q_1, a, k, q_2) \in E$ can also be written
+		$q_0 \trans{ka\text{ or }k|a} q_1$
+	\item we omit writing the unit $1$ in the case of the numerical semirings.
+\end{itemize}
+\begin{definition}[path] A path in the automaton  $\Aut$ is a sequence of
+	transitions $l_1, \ldots, l_n$ of the form 
+	$l_i : p_i \trans{a_i | k_i} p_{i+1}$\\
+	The label of a path is $a_1\ldots a_n$.\\
+	The weight of a path is the product in the semiring \KK,
+	$\weight = i(p_0) \cdot k_1 \cdot \ldots \cdot k_n \cdot f(p_{n+1})$
+\end{definition}
+
+\begin{definition} The language accepted by \Aut weighted over the semiring
+	\KK is a function $\Lang(A): A^* \to \KK$ computed as follow:
+	$\Lang(A)(w) = \sum_{d \text{ path labelled by } w}\weight(d)$
+\end{definition}
+
+\paragraph{Examples}~
+\begin{figure}[h]
+	\centering
+	\begin{tikzpicture}[->,>=stealth',shorten >=1pt,auto,node distance=3.5cm,
+		scale = 1,transform shape]
+		
+		\tikzstyle{initial} = 
+			[initial by arrow, initial text=0, initial left]
+		\tikzstyle{accepting} = 
+			[accepting by arrow, accepting text=0, accepting right]
+
+		\node[state,initial,accepting] (q_0) {$q_0$};
+		\node[state,initial,accepting,right of=q_0] (q_1) {$q_1$};
+
+		\path 
+		(q_0) 	edge	[loop above]	node {$a|0$} (q_0)
+				edge	[loop below]	node {$b|1$} (q_0)
+		(q_1) 	edge	[loop above]	node {$a|1$} (q_1)
+				edge	[loop below]	node {$b|0$} (q_1);
+
+	\end{tikzpicture}
+	\caption*{$\Aut_1$ over $\mathbb{n}_{min}$}
+\end{figure}
+
+$\Lang(\Aut_1)(w) = min(|w|_a, |w|_b)$
+\begin{figure}[H]
+	\centering
+	\begin{tikzpicture}[->,>=stealth',shorten >=1pt,auto,node distance=3.5cm,
+		scale = 1,transform shape]
+		
+		\tikzstyle{initial} = 
+			[initial by arrow, initial text=, initial left]
+		\tikzstyle{accepting} = 
+			[accepting by arrow, accepting text=, accepting right]
+
+		\node[state,initial] (p) {$p$};
+		\node[state,accepting,right of=q_0] (q) {$q$};
+
+		\path 
+		(p) 	edge	[loop above]	node {$a$} (p)
+				edge	[loop below]	node {$b$} (p)
+				edge					node {$a$} (q)
+		(q) 	edge	[loop above]	node {$a$} (q)
+				edge	[loop below]	node {$b$} (q);
+
+	\end{tikzpicture}
+	\caption*{$\Aut_2$ over $\mathbb{N}$}
+\end{figure}
+
+$\Lang(\Aut_2) = |w|_a$, all the paths have weight 1 (all weights are 1)
+and there is one path for every $a$ in $w$.
+
+\paragraph{Exercise} Fin an automaton weighted over $\mathbb{Z}$
+such that $\Lang(\Aut_3)(w) = |w|_a - |w|_b$
+\begin{figure}[H]
+	\centering
+	\begin{tikzpicture}[->,>=stealth',shorten >=1pt,auto,node distance=3.5cm,
+		scale = 1,transform shape]
+		
+		\tikzstyle{initial} = 
+			[initial by arrow, initial text=, initial left]
+		\tikzstyle{accepting} = 
+			[accepting by arrow, accepting text=, accepting right]
+
+		\node[state,initial] (p) {$p$};
+		\node[state,accepting,right of=q_0] (q) {$q$};
+
+		\path 
+		(p) 	edge	[loop above]	node {$a$}	(p)
+				edge	[loop below]	node {$b$}	(p)
+				edge	[bend left]			node {$a$}	(q)
+				edge	[bend right,below]	node {$-b$}	(q)
+		(q) 	edge	[loop above]	node {$a$}	(q)
+				edge	[loop below]	node {$b$}	(q);
+
+	\end{tikzpicture}
+	\caption*{$\Aut_3$ over $\mathbb{Z}$}
+\end{figure}
+
+\begin{definition}[\KK-series]
+	A \KK-series over $A^*$ is a function $s : A^* \to \KK$.\\
+	The set of \KK-series over $A^*$ is denoted by $\series{\KK}{A^*}$.
+	$\series{\KK}{A^*}$ has a \KK-algebra structure such that we have the 
+	following operations:
+	\begin{itemize}
+		\item[Sum] $s,t \in \series{\KK}{A^*}, s+t$ is defined by
+			$(s+t)(w) = s(w) + t(w)$ for $w \in A^*$
+		\item[External left and right multiplication]
+			$\forall k \in \KK, \forall s \in \series{\KK}{A^*}$ we define
+			$(s\cdot k)(w) = s(w) \cdot k$ and $(k \cdot s)(w) = k \cdot s(w)$
+		\item[Cauchy product] for $s,t\in \series{\KK}{A^*}$ we define
+			$(s\cdot t)(w) = \sum_{u,v\in A^*\\w = uv}s(u)t(v)$
+	\end{itemize}
+\end{definition}
+
+We have the following properties:
+\begin{itemize}
+	\item $\forall s,t,r \in \series{\KK}{A^*}, (s+t)\cdot r = s\cdot r + t \cdot r$
+	and $r\cdot(s+t) = r\cdot s + r\cdot t$
+	\item $\forall k, k' \in \KK, s, t\in \series{\KK}{A^*}$:
+		\begin{itemize}
+			\item $k\cdot(s+t) = k\cdot s + k\cdot t$
+			\item $(s+t)\cdot k = s\cdot k + t \cdot k$
+			\item $k\cdot(k'\cdot s) = (k\cdot_\KK)\cdot s$
+			\item $k\cdot(s\cdot t) = (k\cdot s)\cdot t$
+			\item $(s\cdot k)\cdot k' = s \cdot (k \cdot_\KK k')$
+			\item $(s \cdot t) \cdot k = s\cdot (t \cdot k)$
+		\end{itemize}
+\end{itemize}
+
+\begin{definition}[support]
+	Given $s\in \KK<< A^*>>$ the support of $s$ is defined as
+	$supp(s) = \{w \in A^* | s(w) \neq 0_\KK\}$
+\end{definition}
+
+Given a \KK-automaton \Aut{} we get a Boolean automaton by replacing every
+non-zero transition in \Aut{} with 1. Denote this automaton by $supp(\Aut)$.
+
+\paragraph{Exercise} 
+\begin{enumerate}
+	\item show that $supp(\Lang(\Aut)) \subseteq \Lang(supp(\Aut))$
+	\item find a sufficient condition so that the equality holds
+\end{enumerate}
+\paragraph{Answers}
+\begin{enumerate}
+	\item Let $w \in \supp(\Lang(\Aut))$, then
+		$\supp(\Lang(\Aut)) = \sum_{d labelled by w} \weight(d) \neq 0$,
+		therefore there exists a path $d$ labelled by $w$ in \Aut{}
+		such that $\weight(d) \neq 0$ and $d:\trans{a_{1}|k_{1}}p_{1}
+		\trans{}\ldots\trans{a_{n}|k_{n}}p_{n}$, thus
+		$\weight(d) = i(p_{0}) \cdot k_{1}\cdot \ldots \cdot k_{n}\cdot 
+		f(p_{n})$, from which we can deduce that $k_{i} \neq 0$ for all $i$,
+		therefore the path is also valid in $\supp(\Lang(\Aut))$ and
+		thus $w \in \Lang(\supp(\Aut))$.
+	\item Having weights such that for 2 paths $d, d'$ with
+		$\weight(d) \neq 0$ and $\weight(d') \neq 0$, $\weight(d) +
+		\weight(d') \neq 0$ is a sufficient to have the equality
+\end{enumerate}
+
+\begin{definition}[Matrix representation]
+	%TODO
+	The matrix representation of an automaton \Aut{} is the matrix $\Delta$
+	such that for every states $p$ and $q$, if there is $k$ edges 
+	from $p$ to $q$ labelled by $l_1, \ldots, l_k$, 
+	some linear transformations,
+	then $\Delta_{(p, q)} = \sum_{i\leq k} l_i$
+\end{definition}
+
+\paragraph{Example} Given the following automaton :
+\begin{figure}[H]
+	\centering
+	\begin{tikzpicture}[->,>=stealth',shorten >=1pt,auto,node distance=3.5cm,
+		scale = 1,transform shape]
+		
+		\tikzstyle{initial} = 
+			[initial by arrow, initial text=, initial left]
+		\tikzstyle{accepting} = 
+			[accepting by arrow, accepting text=, accepting right]
+
+		\node[state,initial] (p) {$p$};
+		\node[state,accepting,right of=q_0] (q) {$q$};
+
+		\path 
+		(p) 	edge	[loop above]	node {$a$} (p)
+				edge	[loop below]	node {$b$} (p)
+				edge					node {$a$} (q)
+		(q) 	edge	[loop above]	node {$a$} (q)
+				edge	[loop below]	node {$b$} (q);
+
+	\end{tikzpicture}
+	\caption*{$\Aut$}
+\end{figure}
+its matrix representation is
+$
+\begin{pmatrix}
+	a+b & a \\
+	0	& 2a +b\\
+\end{pmatrix}
+$
+
+\begin{remark} This initial map $I : Q \to \KK$ can be seen as
+	a row vector and the final map $F: Q \to \KK$ as a column vector
+\end{remark}
+
+\begin{lemma}
+	$(\Delta, I, F)$ the matrix representation of an automaton:
+	\begin{align*}
+		\Lang(A)(w) = (I \cdot \Delta^{|w|}\cdot F)(w)
+	\end{align*}
+\end{lemma}
+
+\begin{property}~
+	\begin{itemize}
+		\item $s\in\series{\KK}{A^*}$ can also be written as
+			$\sum_{w\in A^*} s(w)\cdot w$
+		\item $\Delta^n$ is the matrix of sums of "weighted labels" of
+			paths of length $n$
+			\begin{align*}
+				\forall p, q \in Q, (\Delta^{n+1})_{p,q} = 
+				\sum_{s\in Q} (\Delta^n)_{p, s} \cdot \Delta_{s, q}
+			\end{align*}
+		\item $\Lang(\Aut) = \sum_{n\in\mathbb{N}} I \cdot \Delta^n \cdot F =
+			I \cdot (\sum_{n\in\mathbb{N}}\Delta^n)\cdot F$
+	\end{itemize}
+\end{property}
+
+Given a semiring \KK, we would like to define the operation $( \cdot)^* $ by
+$k^* = \sum_{n \geq 0} k^n$.
+This is not always defined.
+
+\begin{definition}
+	A family $(s_i)_{i\in I}$ of $\series{\KK}{A^*}$ is locally finite
+	when $\forall w \in A^*, \{i \in I | s_i(w) = 0\}$ is finite.
+\end{definition}
+\begin{theorem}
+	If $(s_i)_{i\in I}$ is a locally finite family of series, then
+	we can define $\sum_{i\in I} s_i$
+\end{theorem}
+\begin{definition}
+	A series $s \in \series{\KK}{A^*}$ is proper if $s(\epsilon) = 0_\KK$
+\end{definition}
+
+If $s \in \series{\KK}{A^*}$ is proper then the family $(s^n)_{n\geq 0}$ is locally
+finite ($s^n(w) = 0$ if $|w|< n$ (Cauchy product)).
+
+Thus for a proper series $s \in \series{\KK}{A^*}$ we can define $s^*$.
+
+\begin{definition} A subset of $\series{\KK}{A^*}$ is called
+	rationally closed if it closed under
+	\begin{itemize}
+		\item left and right externe multiplication
+		\item point wise sum
+		\item Cauchy product
+		\item under $^*$-operator when it is defined
+	\end{itemize}
+\end{definition}
+
+\begin{definition}
+	A polynomial is a series of finite support
+
+	The set of of polynomials over $A^*$ is denoted by
+	$\polyn{\KK}{A^*} \subseteq \series{\KK}{A^*}$
+
+	The set of rational series is the rational closure of $\polyn{\KK}{A^*}$
+
+\end{definition}
+
+

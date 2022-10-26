@@ -1,0 +1,289 @@
+
+References for this part available on the course's webpage, but no lecture notes.
+
+\section{Lecture 6} % (fold)
+\label{sec:lecture_6}
+Part of chapter 1-2 of M. Bojanczyk's notes
+
+\subsection{Monoids} % (fold)
+\label{sub:monoids}
+
+\begin{definition}[Monoid]
+	A \emph{monoid} is a tuple $(M, \cdot, 1)$ where $\cdot$ is an associative
+	binary operation on $M$ with neutral element $1$.
+\end{definition}
+
+\begin{definition}[Semigroup]
+	A \emph{semigroup} is a tuple $(S, \cdot)$ where $\cdot$ is a associative
+	binary operation on $S$.
+\end{definition}
+
+\begin{definition}[Group]
+	A \emph{group} is a monoid in which every element has a two-sided inverse.
+\end{definition}
+
+\begin{definition}
+	A non deterministic finite automaton is a tuple
+	$(Q, \Sigma, \delta, I, F)$ where $Q$ is a finite set, 
+	$\delta : \Sigma \to Rel(Q), I, F \subseteq Q$\\
+	Evaluationn of a word by an automaton is essentially
+	computing the value of $\delta$ extended to words
+\end{definition}
+
+\paragraph{Examples}~
+\begin{itemize}
+	\item if $Q$ is a set, then $Rel(Q)$ the set of binary relations on $Q$ 
+		is a monoid under composition $R \circ S = \{(q,q') | \exists p \in Q,
+		(q,p) \in R,, (p, q') \in S \}$ with neutral element
+		$\Delta = \{(q,q)\}$ 
+	\item When  $\Sigma$ is a set of symbols, the set $\Sigma^*$ of finite
+		words over $\Sigma$ is a monoid under concatenation with neutral
+		element $\epsilon$
+\end{itemize}
+
+\begin{property}
+	$\Sigma^*$ is the free monoid over $\Sigma$, ie, whenever
+	$\delta : \Sigma \to M$ is a function with $M$ monoid, there is an
+	unique $\bar{\delta}: \Sigma^* \to M$ homomorphism such that the
+	diagram below commutes.
+	\begin{figure}[h]
+		\centering
+		\begin{tikzpicture}[->,>=stealth',shorten >=1pt,auto,node distance=3.5cm,
+			scale = 1,transform shape]
+	
+			\tikzstyle{initial} = 
+				[initial by arrow, initial text=0, initial left]
+			\tikzstyle{accepting} = 
+				[accepting by arrow, accepting text=0, accepting right]
+			% nodes go here
+			\node[state] (Sst) {$\Sigma^*$};
+			\node[state, right of=Sst] (M) {$M$};
+			\node[state, below of=Sst] (Sigma) {$\Sigma$};
+	
+			\path 
+			% edges go here
+			(Sst)	edge 	[]	node	{$\bar{\delta}$}	(M)
+			(Sigma)	edge 	[]	node	{}	(Sst) %should be a hook
+			(Sigma)	edge 	[]	node	{$\delta$}	(M)
+			;
+	
+		\end{tikzpicture}
+		\caption*{}
+	\end{figure}
+
+	Now, when $\delta: \Sigma \to Rel(Q)$ is the transition function of an
+	automaton, then for any $w \in \Sigma^*$, $\bar{\delta}(w)$ is the
+	relation association $q \to q'$ iff there is a path $q \to q'$ 
+	labelled by $w$.
+\end{property}
+	
+\begin{definition}
+	When $h : \Sigma^* \to M$ is a homomorphism with $M$ a finite monoid and
+	$P \subseteq M$ we call $h^{-1}(P)$ the language
+	recognized by $(M, P)$.
+\end{definition}
+
+\begin{theorem}
+	The language recognizable by finite monoids are exactly those recognizable
+	by NFAs.
+\end{theorem}
+\begin{proof}
+	The above shows that $\bar{\delta}:\Sigma^{*}\to Rel(Q)$ recognizes
+	$L(\mathcal{A})$ where we take $P = \{ R \in Rel(Q) | R \cap (I\times F) \neg
+	\emptyset \}$.\\
+	Conversly if $h \to \Sigma^{*} \to M$ is a homomorphism we
+	build a DFA as follows :
+	\begin{itemize}
+		\item $Q = M$, $\Sigma = \Sigma$ 
+		\item $\delta: \Sigma \to Rel(Q), a\mapsto\{(m, m\dot h(a)) | m \in Q\}$
+		\item $I = \{1_{M}\}$, $F = P$
+	\end{itemize}
+	Then $h(w) \in P$ iff this automaton accepts $w$.
+\end{proof}
+
+\paragraph{Examples}
+$h:\{a,b\}^{*}\to\mathbb{Z}_{2}, a\mapsto 0, b\mapsto 1$, $P = \{1\}$ 
+recognizes words $w$ with an odd number of $1$.
+
+% subsection monoids (end)
+
+\subsection{Logic as a descriptive language} % (fold)
+\label{sub:logic_as_a_descriptive_language}
+
+We will see now how \emph{regularity} of a language is capture by 
+\emph{definability} in a logical formalism.
+
+\paragraph{Examples}~
+\begin{enumerate}
+	\item $a^*bc^*$ can be defined by the logic formula
+	$\exists x (b(x) \land\forall y((y<x \to a(y)) \land(y>x \to c(y))))$
+	\item $(aa)^*a$ can be defined byt the logic formula
+		$\exists X (X(first)\land X(last)\land\forall x,y (S(x,y)\to(X(x)
+		\leftrightarrow \neg X(y))))$
+\end{enumerate}
+
+\begin{definition}[Syntax]
+	Let $\Sigma$ a finite alphabet and let
+	$V_{1} = \{x, y,\ldots\}$ and $V_{2}\{X, Y, \ldots\}$ be
+	infinite sets of variables.
+	The set $F$ of monadic second order (MSO) formulas in $\Sigma, V_{1}, V_{2}$ 
+	is defined as the smallest set containing:
+	\begin{itemize}
+		\item $x < y$ for $x, y \in V_{1}$ 
+		\item $a(x)$ for $a\in \Sigma, x\in V_{1}$
+		\item $X(x)$ for $X \in V_{2}, x \in V_{1}$ 
+		\item $\bot$ 
+		\item $\phi \lor \psi, \neg \phi$ when $\phi, \psi \in F$ 
+		\item $\exists x. \phi$ when $x \in V_{1}, \phi \in F$ 
+		\item $\exists X. \phi$ when $X \in V_{2}, \phi \in F$ 
+	\end{itemize}
+	The first 4 elements are the \emph{atoms}.
+\end{definition}
+
+\begin{definition}[Abbreviations]~
+	\begin{itemize}
+		\item $\phi \land \psi \defeq \neg (\neg \phi \land \neg \psi)$ 
+		\item $\forall x \phi \defeq \neg \exists x \neg \phi$ 
+		\item $\forall X\phi \defeq \neg \exists \neg \phi$ 
+		\item $x = y \defeq \neg(x <y \lor x >y)$ 
+		\item $empty \defeq \forall x. \bot$ 
+		\item $S(x, y) \defeq x < y \land \forall z.(z \leq x \lor y \leq z)$
+		\item $first, last$
+	\end{itemize}
+\end{definition}
+
+For any formula $\phi$ wee distinguish \emph{free} variable of  $\phi$ 
+and \emph{bound} variables of $\phi$.\\
+When we write $\phi(x_{1}, \ldots, x_{n}, X_{1}, \ldots, X_{m})$ this means
+that all free variables of $\phi$ are among $\{x_{1}, \ldots, x_{n}, X_{1},
+\ldots, X_{n}\}$.
+\begin{definition}
+	The \emph{quantifier rank} of $\phi$ is the maximum nesting of quantifiers
+	in $\phi$ and the \emph{quantifier depth} is the maximum number
+	of alternation between $\exists$ and $\forall$.
+\end{definition}
+
+\begin{definition}[Semantics]
+	A \emph{marked word} is a tuple $(w, p_{1}, \ldots, p_{n}, P_{1}, \ldots,
+	P_{m})$ where $p_{i} \in |w|$ and $P_{i} \subseteq |w|$.
+	We now define a relation $\models$ between marked words $(w,\bar{p}, \bar{P})$ 
+	and MSO formulas by induction on the formula.
+
+	\begin{itemize}
+		\item $w, \bar{p}, \bar{P} \models x_{i} < x_{j}$ iff $p_{i} p_{j}$ in $w$ 
+		\item $w, \bar{p}, \bar{P} \models a(x_{i})$ iff $w$ has letter $a$ 
+			at position $p_{i}$ 
+		\item $w, \bar{p}, \bar{P} \models X_{j}(x_{i})$ iff $p_{i} \in P_{j}$ 
+		\item $w, \bar{p}, \bar{P} \not\models \bot$
+		\item $w, \bar{p}, \bar{P} \models \phi \lor \psi$ iff 
+			$w ,\bar{p}, \bar{P} \models \phi$ or
+			$w ,\bar{p}, \bar{P} \models \psi$
+		\item $w, \bar{p}, \bar{P} \models \phi \land \psi$ iff 
+			$w ,\bar{p}, \bar{P} \models \phi$ and
+			$w ,\bar{p}, \bar{P} \models \psi$
+		\item $w, \bar{p}, \bar{P} \models \neg\phi $ iff 
+			$w ,\bar{p}, \bar{P} \not\models \phi$ and
+		\item $w, \bar{p}, \bar{P} \models \exists x_{n+1}\phi $ iff 
+			there exists $p_{n+1}$ in $|w|$ such that 
+			$w, \bar{p}\cdot p_{n+1}, \bar{P} \models \phi$
+		\item $w, \bar{p}, \bar{P} \models \exists X_{m+1}\phi $ iff 
+			there exists $P_{n+1} \subseteq |w|$ such that 
+			$w, \bar{p}, \bar{P}\cdot P_{m+1} \models \phi$
+	\end{itemize}
+\end{definition}
+\begin{theorem} 
+	A set of finite words can be defined by an MSO sentence (formula $\phi$ 
+	with $FV(\phi) = \emptyset)$ iff it is regular.
+	\begin{flushright}
+		(1950, Büchi, Elgot, Trakhtenbrot)
+	\end{flushright}
+\end{theorem}
+\begin{proof}
+	We first show that any MSO-definable language can be recognized by an
+	automaton. To do this, we need a stronger lemma for induction to work.
+
+	We define the notion of \emph{regular language of marked words} as
+	if $(w, p_{1}, \ldots, p_{n}, P_{1}, \ldots, P_{m})$ is 
+	a marked works we encode it as a word in the alphabet
+	$\Sigma' = \Sigma \times \{0, 1\}^{n}\times\{0,1\}^{m}$, not
+	every word $w \in \Sigma'^*$ comes from a marked word,
+	but the image of the encoding is regular.
+
+	\begin{lemma} For any MSO-fomula $\phi$ and  marked word
+		$(w, \bar{p}, \bar{P})$ there is an automaton $\mathcal{A}$ 
+		with alphabet $\Sigma'$ such that
+		$w, \bar{p}, \bar{P} \models \phi$ iff $\mathcal{A}$ accepts
+		$e(w, \bar{p}, \bar{P})$ where 
+		$e: MarkedWords_{n,m}(\Sigma) \to \Sigma'^*$ which associates
+		to $(w, \bar{p}, \bar{P})$ the word of length $|w|$ with
+		at position $i$ $(w_{i}, \chi_{\bar{p}}(i), \chi_{\bar{P}}(i))$ 
+		where 
+		$\chi_{(p_{1},\ldots,p_{n})}= \begin{cases} 
+			0 \text{ if } pj \neq i\\ 
+			1 \text{ if } p_{j} = i
+		\end{cases}$
+		and $\chi_{P_{1}, \ldots, P_{m}}$ is similarly defined
+	\end{lemma}
+
+	\begin{proof} Proof of the lemma\\
+		By induction on the structure of $\phi$
+		\begin{itemize}
+			\item base case not too hard to find
+			\item[$\phi = \phi_{1} \lor \phi_{2}$] and $\mathcal{A}_{i}$ 
+				is an automaton for $\phi_{i}$ then $\mathcal{A}_{1}
+				\times \mathcal{A}_{2}$ is an automaton for $\phi$.
+			\item[$\phi = \neg \psi$ ] build from $\mathcal{A}_{\psi}$ an
+				automaton that recognizes the complementary language
+			\item[$\phi = \exists X_{m+1}\psi(x_{1}\ldots x_{n}, 
+				X_{1}\ldots X_{m+1})$] By the induction hypothesis, 
+				let $\mathcal{A}$ be an automaton
+				for $\phi$ in the alphabet $\Sigma \times \{0,1\}^{n}
+				\times \{0, 1\}^{m+1}$.
+				Let $\mathcal{A}'$ be the automaton in $\Sigma\times\{0,1\}^{n}
+				\times\{0,1\}^{m}$ with the same $Q, I, F$ 
+				as $\mathcal{A}$ and $\delta'(a, \bar{s},\bar{t}) \defeq
+				\delta_{\mathcal{A}}(a,\bar{s},\bar{t}\cdot 0) \cup
+				\delta_{\mathcal{A}}(a,\bar{s},\bar{t}\cdot 1)$
+				Then a successful run of $\mathcal{A}'$ on a word $w'$ 
+				induces exactly a choice  $P_{n+1}$ of positions in $w$ 
+				such that $(w', P_{n+1})$ is accepted by $\mathcal{A}$ 
+				so $w'\models \phi$ iff $w'$ is accepted by $\mathcal{A}'$ 
+			\item[$\phi = \exists x_{n+1}\psi(x_{1}\ldots x_{n+1},
+				X_{1}\ldots X_{m})$] similar reasoning as previous case
+		\end{itemize}
+	\end{proof}
+	\begin{remark}
+		This lemma gives a decision procedure of MSO-validity
+	\end{remark}
+	To finish the proof of the theorem, we show that any automaton $\mathcal{A}$ 
+	can be simulated by an MSO sentence, that is we produce $\phi_{\mathcal{A}}$ 
+	such tat $\mathcal{A} $ accepts $w$ iff $w \models \phi_{\mathcal{A}}$.
+	We first write a formula $\psi_{\mathcal{A}}(X_{0}, \ldots, X_{|Q|})$ 
+	which will be stasified by $w, P_{0}, P_{1}, P_{2}$ iff the sets
+	$P_{0}, \ldots, P_{|Q|}$ partition $|w|$ in such a way that the
+	corresponding sequence of $0, \ldots, |Q|$ 
+	is a successful run of $\mathcal{A}$ on $w$.
+	
+	\begin{remark}
+		For more details see Schwoon course on formal languages
+	\end{remark}
+\end{proof}
+
+\begin{remark}
+	If $\phi$ is an MSO-sentence, by the above construction we can build
+	an automaton $\mathcal{A}_{\phi}$ for it, and then
+	an MSO-sentence  $\phi'$ describing $\mathcal{A}_{\phi}$.
+	This $\phi'$ is equivalent to $\phi$ 
+\end{remark}
+
+\begin{theorem}
+	A set of finite words can by defined by an FO sentence
+	iff it is recognizable by a monoid with no non-trivial \emph{subgroups}.
+	\begin{flushright}
+		(1965, Schützenberger)
+	\end{flushright}
+\end{theorem}
+
+% subsection logic_as_a_descriptive_language (end)
+
+% section lecture_6 (end)
